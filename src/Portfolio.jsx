@@ -38,11 +38,11 @@ const T = {
 const SKILLS = {
   "Backend & Systems": {
     color: T.accent,
-    items: ["Python", "Java", "C++", "Node.js", "FastAPI", "Spring Boot"],
+    items: ["Python", "Java", "C++", "Node.js", "FastAPI"],
   },
   "Data & Infrastructure": {
     color: T.accentAmber,
-    items: ["PostgreSQL", "MongoDB", "Redis", "AWS", "Docker", "Kubernetes"],
+    items: ["PostgreSQL", "MySQL", "MongoDB", "Docker"],
   },
   "Frontend": {
     color: T.accentGreen,
@@ -564,7 +564,7 @@ const Hero = () => {
           }}
         >
           Building production-grade financial systems, real-time data pipelines,
-          and high-throughput backends that scale under pressure. 
+          and scalable backends. 
           Based in Singapore. 
         </motion.p>
 
@@ -1089,8 +1089,8 @@ const Contact = () => {
         </h2>
 
         <p style={{ fontSize: 15, color: T.textSecondary, lineHeight: 1.82, marginBottom: 44, fontWeight: 300 }}>
-          Open to full-time roles and contract work in fintech, infrastructure,
-          and data systems. Based in Singapore — remote-friendly.
+          Open to internships and contract work in fintech, capital markets,
+          and data systems. Based in Singapore, remote-friendly.
         </p>
 
         <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", marginBottom: 54 }}>
