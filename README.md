@@ -2,7 +2,7 @@
 
 A single-page developer portfolio with a dark, data-terminal aesthetic — interactive particle hero, animated sections, and a responsive bento-grid project showcase.
 
-🔗 **Live site:** https://REPLACE-WITH-YOUR-DOMAIN.vercel.app
+🔗 **Live site:** https://desmond-chung-portfolio.vercel.app/ 
 
 ![Portfolio preview](public/profile.jpg)
 
