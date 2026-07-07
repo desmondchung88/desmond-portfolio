@@ -77,6 +77,27 @@ const PROJECTS = [
     accent: T.accent,
     accentRgb: "0,207,255",
     wide: true,
+  },
+  {
+    id: 2,
+    code: "02",
+    title: "S.I.N.G. Plan",
+    subtitle: "Personal Financial Planning Platform — Jun 2026 · In Development",
+    description:
+      "A free financial planner for Singaporeans that converts a user's profile and goals " +
+      "into a monthly savings plan, salary allocation breakdown, and milestone timeline — " +
+      "with CPF contribution and allocation rules modelled end-to-end.",
+    highlights: [
+      "CPF engine — 2026 rates, S$8k wage ceiling, OA/SA/MA split by age band",
+      "Priority allocator — emergency fund → debt → BTO → investing, with feasibility warnings",
+      "BTO cost model — EHG grants, 75% LTV, stamp duty, projected CPF OA coverage",
+      "Pure-TypeScript maths engine covered by 34 unit tests",
+    ],
+    tags: ["TypeScript", "Next.js", "React", "Tailwind CSS", "Zustand", "Prisma", "PostgreSQL", "Supabase", "Vitest"],
+    github: "https://github.com/desmondchung88/sg-money-plan",
+    accent: T.accentGreen,
+    accentRgb: "0,255,157",
+    wide: false,
   }
   // {
   //   id: 2,
