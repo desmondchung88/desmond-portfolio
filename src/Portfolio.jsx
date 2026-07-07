@@ -393,7 +393,7 @@ const Nav = () => {
       {/* Right — Resume button + mobile menu toggle */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
         <motion.a
-          href="/myresume.docx"
+          href="/myresume.pdf"
           download
           whileHover={{
             boxShadow: "0 0 22px rgba(0,207,255,0.4)",
