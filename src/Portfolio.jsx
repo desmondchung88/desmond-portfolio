@@ -38,7 +38,7 @@ const T = {
 const SKILLS = {
   "Backend & Systems": {
     color: T.accent,
-    items: ["Python", "Java", "C++", "Node.js", "FastAPI"],
+    items: ["Python", "Java", "C++", "Node.js", "FastAPI", "WebSockets"],
   },
   "Data & Infrastructure": {
     color: T.accentAmber,
@@ -46,7 +46,7 @@ const SKILLS = {
   },
   "Frontend": {
     color: T.accentGreen,
-    items: ["React", "TypeScript", "Next.js", "Tailwind CSS", "Vue.js", "WebSockets"],
+    items: ["React", "TypeScript", "Next.js", "Tailwind CSS", "Vue.js"],
   },
 };
 
@@ -65,12 +65,12 @@ const PROJECTS = [
       "surfacing signals before they move markets. " +
       "Ranked 4th out of 170+ teams (Top 3%) at the FinTech Innovator's Hackathon 2026.",
     highlights: [
-      "📡  7-source concurrent ingestion — 350 articles processed in under 5 seconds",
-      "🧠  FinBERT sentiment scoring — 36× faster via batch processing (9 min → 15 sec)",
-      "📊  Bollinger Band Z-score anomaly detection — adaptive HOT / COOL theme signals",
-      "🔗  Pearson correlation network — 15 cross-theme relationships mapped in real time",
-      "💬  MAS-compliant RAG chatbot — 3-layer compliance gate, zero financial advice",
-      "🛡️  7-gate filter pipeline — 80% noise rejection, Levenshtein fuzzy deduplication",
+      "7-source concurrent ingestion — 350 articles processed in under 5 seconds",
+      "FinBERT sentiment scoring — 36× faster via batch processing (9 min → 15 sec)",
+      "Bollinger Band Z-score anomaly detection — adaptive HOT / COOL theme signals",
+      "Pearson correlation network — 15 cross-theme relationships mapped in real time",
+      "MAS-compliant RAG chatbot — 3-layer compliance gate, zero financial advice",
+      "7-gate filter pipeline — 80% noise rejection, Levenshtein fuzzy deduplication",
     ],
     tags: ["Python", "FastAPI", "PostgreSQL", "Next.js", "React", "Docker", "FinBERT", "Groq Llama 3.1"],
     github: "https://github.com/desmondchung88/macro-tracker",
@@ -143,11 +143,7 @@ const useWindowWidth = () => {
 // ─── Global Styles ────────────────────────────────────────────
 const GlobalStyles = () => {
   useEffect(() => {
-    const link = document.createElement("link");
-    link.rel  = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@300;400;500&display=swap";
-    document.head.appendChild(link);
-
+    // Fonts are loaded from index.html so they're ready on first paint.
     const style = document.createElement("style");
     style.textContent = `
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -171,12 +167,28 @@ const GlobalStyles = () => {
         0%   { opacity: 1; transform: scaleY(0); transform-origin: top; }
         100% { opacity: 0; transform: scaleY(1); transform-origin: top; }
       }
+
+      /* Keyboard navigation: visible focus ring on links & buttons */
+      a:focus-visible, button:focus-visible {
+        outline: 2px solid rgba(0,207,255,0.65);
+        outline-offset: 3px;
+        border-radius: 6px;
+      }
+
+      /* Respect users who turn off motion */
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
     `;
     document.head.appendChild(style);
 
     return () => {
       try {
-        document.head.removeChild(link);
         document.head.removeChild(style);
       } catch (_) {}
     };
@@ -258,7 +270,31 @@ const NodeCanvas = () => {
 
       raf.current = requestAnimationFrame(tick);
     };
-    tick();
+
+    // Reduced motion: render a single static frame instead of animating.
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      const ns = nodes.current;
+      for (let i = 0; i < ns.length; i++) {
+        for (let j = i + 1; j < ns.length; j++) {
+          const d = Math.hypot(ns[i].x - ns[j].x, ns[i].y - ns[j].y);
+          if (d < 155) {
+            ctx.beginPath();
+            ctx.moveTo(ns[i].x, ns[i].y);
+            ctx.lineTo(ns[j].x, ns[j].y);
+            ctx.strokeStyle = `rgba(0,207,255,${(1 - d / 155) * 0.17})`;
+            ctx.lineWidth = 0.55;
+            ctx.stroke();
+          }
+        }
+        ctx.beginPath();
+        ctx.arc(ns[i].x, ns[i].y, ns[i].r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,207,255,0.3)";
+        ctx.fill();
+      }
+    } else {
+      tick();
+    }
 
     const onResize = () => {
       resize();
@@ -284,8 +320,15 @@ const NodeCanvas = () => {
 };
 
 // ─── Navbar ───────────────────────────────────────────────────
+const NAV_LINKS = [
+  { label: "Stack",    href: "#skills"   },
+  { label: "Projects", href: "#projects" },
+  { label: "Contact",  href: "#contact"  },
+];
+
 const Nav = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const width    = useWindowWidth();
   const isMobile = width < 768;
 
@@ -294,6 +337,11 @@ const Nav = () => {
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
+
+  // Close the mobile menu if the viewport grows past the breakpoint.
+  useEffect(() => {
+    if (!isMobile) setMenuOpen(false);
+  }, [isMobile]);
 
   return (
     <nav style={{
@@ -338,40 +386,104 @@ const Nav = () => {
           borderRadius:   50,
           padding:        "6px 8px",
         }}>
-          {[
-            { label: "Stack",        href: "#skills"   },
-            { label: "Projects", href: "#projects" },
-            { label: "Contact",      href: "#contact"  },
-          ].map(l => <NavPill key={l.label} href={l.href} label={l.label} />)}
+          {NAV_LINKS.map(l => <NavPill key={l.label} href={l.href} label={l.label} />)}
         </div>
       )}
 
-      {/* Right — Resume button */}
-      <motion.a
-        href="/myresume.docx"
-        download
-        whileHover={{
-          boxShadow: "0 0 22px rgba(0,207,255,0.4)",
-          background: "rgba(0,207,255,0.18)",
-          y: -1,
-        }}
-        style={{
-          fontFamily:     T.fontMono,
-          fontSize:       12,
-          fontWeight:     600,
-          color:          T.accent,
-          textDecoration: "none",
-          border:         "1px solid rgba(0,207,255,0.35)",
-          background:     "rgba(0,207,255,0.07)",
-          padding:        "9px 22px",
-          borderRadius:   6,
-          letterSpacing:  "0.1em",
-          flexShrink:     0,
-          display:        "inline-block",
-        }}
-      >
-        Resume ↓
-      </motion.a>
+      {/* Right — Resume button + mobile menu toggle */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <motion.a
+          href="/myresume.docx"
+          download
+          whileHover={{
+            boxShadow: "0 0 22px rgba(0,207,255,0.4)",
+            background: "rgba(0,207,255,0.18)",
+            y: -1,
+          }}
+          style={{
+            fontFamily:     T.fontMono,
+            fontSize:       12,
+            fontWeight:     600,
+            color:          T.accent,
+            textDecoration: "none",
+            border:         "1px solid rgba(0,207,255,0.35)",
+            background:     "rgba(0,207,255,0.07)",
+            padding:        "9px 22px",
+            borderRadius:   6,
+            letterSpacing:  "0.1em",
+            display:        "inline-block",
+          }}
+        >
+          Resume ↓
+        </motion.a>
+
+        {isMobile && (
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            style={{
+              background:   "rgba(0,207,255,0.05)",
+              border:       "1px solid rgba(0,207,255,0.18)",
+              borderRadius: 6,
+              width:        38,
+              height:       38,
+              display:      "flex",
+              flexDirection: "column",
+              alignItems:   "center",
+              justifyContent: "center",
+              gap:          4.5,
+              cursor:       "pointer",
+              padding:      0,
+            }}
+          >
+            <span style={{ width: 16, height: 1.5, background: T.accent, borderRadius: 1, transition: "transform 0.25s, opacity 0.25s", transform: menuOpen ? "translateY(6px) rotate(45deg)" : "none" }} />
+            <span style={{ width: 16, height: 1.5, background: T.accent, borderRadius: 1, transition: "opacity 0.2s", opacity: menuOpen ? 0 : 1 }} />
+            <span style={{ width: 16, height: 1.5, background: T.accent, borderRadius: 1, transition: "transform 0.25s", transform: menuOpen ? "translateY(-6px) rotate(-45deg)" : "none" }} />
+          </button>
+        )}
+      </div>
+
+      {/* Mobile dropdown menu */}
+      {isMobile && menuOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22 }}
+          style={{
+            position:      "absolute",
+            top:           72,
+            left:          0,
+            right:         0,
+            background:    "rgba(2,11,24,0.97)",
+            backdropFilter: "blur(24px)",
+            borderBottom:  "1px solid rgba(0,207,255,0.12)",
+            display:       "flex",
+            flexDirection: "column",
+            padding:       "10px clamp(1.2rem, 5vw, 3rem) 18px",
+          }}
+        >
+          {NAV_LINKS.map(l => (
+            <a
+              key={l.label}
+              href={l.href}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                fontFamily:     T.fontMono,
+                fontSize:       13,
+                fontWeight:     500,
+                color:          T.textSecondary,
+                textDecoration: "none",
+                letterSpacing:  "0.12em",
+                padding:        "14px 4px",
+                borderBottom:   "1px solid rgba(0,207,255,0.06)",
+              }}
+            >
+              {l.label.toUpperCase()}
+            </a>
+          ))}
+        </motion.div>
+      )}
     </nav>
   );
 };
@@ -416,6 +528,8 @@ const Hero = () => {
     ["Full-Stack Engineer", "Fintech Enthusiast", "Capital Markets Technologist"],
     76, 2100
   );
+  const width = useWindowWidth();
+  const showScrollHint = width >= 768;
 
   return (
     <section id="home" style={{
@@ -425,7 +539,7 @@ const Hero = () => {
       alignItems:     "center",
       justifyContent: "center",
       overflow:       "hidden",
-      padding:        "0 clamp(1rem, 6vw, 3rem)",
+      padding:        "96px clamp(1rem, 6vw, 3rem) 72px",
     }}>
       <NodeCanvas />
 
@@ -474,9 +588,11 @@ const Hero = () => {
 <img
   src="/profile.jpg"
   alt="Desmond Chung"
+  width={320}
+  height={320}
   style={{
-    width:        320,
-    height:       320,
+    width:        "clamp(128px, 18vw, 176px)",
+    height:       "clamp(128px, 18vw, 176px)",
     borderRadius: "50%",
     objectFit:    "cover",
     objectPosition: "center top",
@@ -484,9 +600,6 @@ const Hero = () => {
     boxShadow:    "0 0 32px rgba(0,207,255,0.25), 0 0 0 6px rgba(0,207,255,0.06)",
     display:      "block",
     margin:       "0 auto",
-    filter:       "brightness(0.85)",
-    transition:   "filter 0.5s ease",
-    cursor:       "default",
   }}
 />
   </motion.div>
@@ -521,10 +634,10 @@ const Hero = () => {
           transition={{ delay: 0.5, duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
           style={{
             fontFamily:    T.fontDisplay,
-            fontSize:      "clamp(2.6rem, 8.5vw, 5.6rem)",
+            fontSize:      "clamp(2.4rem, 7.5vw, 5rem)",
             fontWeight:    900,
-            lineHeight:    1.04,
-            letterSpacing: "-0.02em",
+            lineHeight:    1.08,
+            letterSpacing: "0.01em",
             color:         T.textPrimary,
             marginBottom:  10,
           }}
@@ -580,7 +693,8 @@ const Hero = () => {
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator (desktop only — overlaps CTAs on small screens) */}
+      {showScrollHint && (
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -605,6 +719,7 @@ const Hero = () => {
           animation:  "scanDrop 1.9s ease-in-out infinite",
         }} />
       </motion.div>
+      )}
     </section>
   );
 };
